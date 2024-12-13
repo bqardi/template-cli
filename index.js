@@ -11,10 +11,12 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const templates = {
-  vanilla: "vanilla",
-  "vanilla-tailwind": "vanilla-tailwind",
-  react: "react",
-  "react-tailwind": "react-tailwind",
+  vanilla: {
+    canuse: ["tailwind"],
+  },
+  react: {
+    canuse: ["tailwind"],
+  },
 };
 
 async function createProject() {
@@ -26,6 +28,14 @@ async function createProject() {
       choices: Object.keys(templates),
     },
     {
+      type: "confirm",
+      name: "tailwind",
+      message: "Use Tailwind?",
+      default: false,
+      when: (answers) =>
+        templates[answers.template].canuse.includes("tailwind"),
+    },
+    {
       type: "input",
       name: "projectName",
       message: "Enter the name of your project:",
@@ -33,11 +43,11 @@ async function createProject() {
     },
   ]);
 
-  const templatePath = path.join(
-    __dirname,
-    "templates",
-    templates[answers.template]
-  );
+  const template = answers.tailwind
+    ? `${answers.template}-tailwind`
+    : answers.template;
+
+  const templatePath = path.join(__dirname, "templates", template);
   const destinationPath = path.join(process.cwd(), answers.projectName);
 
   try {
